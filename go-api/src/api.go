@@ -20,12 +20,31 @@ func handle_noargs(c *gin.Context) {
 }
 
 func handle_daily_quote(c *gin.Context) {
+	r := HTTP_CLIENT
+
 	var inp QuoteJSON
-	QuoteURI := fmt.Sprintf("%s/aggs/ticker/%s/range/1/minute/%s/%s?adjusted=true",
+	c.ShouldBindJSON(&inp)
+
+	quoteURI := fmt.Sprintf("%s/aggs/ticker/%s/range/1/minute/%s/%s?adjusted=true&apiKey=%s",
 		BASE_URL,
 		inp.Ticker,
 		inp.Date,
+		inp.Date,
+		API_KEY,
 	)
+
+	fmt.Println(quoteURI)
+
+	resp, err := r.R().
+		Get(quoteURI)
+	logOnErr(err)
+
+	if !resp.IsSuccessState() {
+		respStr, err := resp.ToString()
+		fmt.Println("uh oh: ", resp.GetStatusCode(), respStr, err)
+	} else {
+		fmt.Println("Result: ", resp.String())
+	}
 
 }
 
@@ -49,6 +68,6 @@ func main_api() {
 	r.GET("/", handle_noargs)
 	r.POST("/daily", handle_daily_quote)
 
-	fmt.Printf("Starting API on port %s", PORTNO)
+	custom_log("api", "Starting API on port %s\n", PORTNO)
 	r.Run(PORTNO)
 }
