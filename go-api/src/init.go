@@ -7,6 +7,7 @@ import (
 	"time"
 
 	"github.com/imroc/req/v3"
+	"github.com/joho/godotenv"
 )
 
 func init_logging() {
@@ -18,6 +19,8 @@ func init_logging() {
 }
 
 func init_metadata() {
+	godotenv.Load("local.env")
+
 	API_KEY = os.Getenv("API_KEY")
 }
 
